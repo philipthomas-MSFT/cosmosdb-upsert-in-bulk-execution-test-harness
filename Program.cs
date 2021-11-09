@@ -3,15 +3,14 @@
 using Bogus;
 using Microsoft.Azure.Cosmos;
 
-var connectionString = await HarnessUtility.GetCosmosDBConnectionStringAsync(
-    connectionName: System.Environment.GetEnvironmentVariable("HARNESS_COSMOSDB_CONNECTIONSTRING_NAME")
-);
-var databaseId = "testDatabase";
-var containerId = "testContainer";
+var connectionString = await HarnessUtility.GetCosmosDBConnectionStringAsync(connectionName: System.Environment.GetEnvironmentVariable("HARNESS_COSMOSDB_CONNECTIONSTRING_NAME"));
 
-var cosmosClient = new CosmosClient(connectionString: connectionString, clientOptions: new CosmosClientOptions { AllowBulkExecution = true });
-var database = cosmosClient.GetDatabase(id: databaseId);
-var container = database.GetContainer(id: containerId);
+var cosmosClient = new CosmosClient(
+    connectionString: connectionString,
+    clientOptions: new CosmosClientOptions { AllowBulkExecution = true });
+
+var database = cosmosClient.GetDatabase(id: System.Environment.GetEnvironmentVariable("HARNESS_COSMOSDB_DATABASE_ID"));
+var container = database.GetContainer(id: System.Environment.GetEnvironmentVariable("HARNESS_COSMOSDB_CONTAINER_ID"));
 
 var items = new Faker<Item>()
     .RuleFor(item => item.Id, fake => Guid.NewGuid().ToString())
