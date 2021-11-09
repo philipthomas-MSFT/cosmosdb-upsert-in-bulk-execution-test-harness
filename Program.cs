@@ -1,7 +1,11 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿//-----------------------------------------------------------
+// Copyright (c) Microsoft Corporation.  All rights reserved.
+//-----------------------------------------------------------
+// See https://aka.ms/new-console-template for more information
 
 using Bogus;
 using Microsoft.Azure.Cosmos;
+using Newtonsoft.Json;
 
 var connectionString = await HarnessUtility.GetCosmosDBConnectionStringAsync(connectionName: System.Environment.GetEnvironmentVariable("HARNESS_COSMOSDB_CONNECTIONSTRING_NAME"));
 
@@ -18,14 +22,13 @@ var items = new Faker<Item>()
     .RuleFor(item => item.LastName, fake => fake.Person.LastName)
     .Generate(10);
 
-var tasks = new List<Task>();
+var tasks = from item in items
+    let task = Task.Run(function: async() =>
+    {
+        Console.WriteLine(JsonConvert.SerializeObject(item));
+        await container.UpsertItemAsync<Item>(item, new PartitionKey(item.LastName)).ConfigureAwait(continueOnCapturedContext: false);
+    }) select task;
 
-foreach (var item in items)
-{
-    System.Console.WriteLine($"{item.Id}, {item.FirstName}, {item.LastName}");
-    tasks.Add(container.UpsertItemAsync<Item>(item, new PartitionKey(item.LastName)));
-}
-
-await Task.WhenAll(tasks);
+await Task.WhenAll(tasks).ConfigureAwait(continueOnCapturedContext: false);
 
 Console.WriteLine("Done!");

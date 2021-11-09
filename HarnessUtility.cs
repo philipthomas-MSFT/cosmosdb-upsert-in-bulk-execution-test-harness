@@ -1,11 +1,21 @@
+//-----------------------------------------------------------
+// Copyright (c) Microsoft Corporation.  All rights reserved.
+//-----------------------------------------------------------
 
-using System.Threading.Tasks;
 using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.Services.AppAuthentication;
 
+/// <summary>
+/// Suite of utility methods needed for the test harness.
+/// </summary>
 public class HarnessUtility
 {
-    public static async Task<string> GetCosmosDBConnectionStringAsync(string connectionName) {
+    /// <summary>
+    /// Method used for obtaining the CosmosDB connection string from key vault.
+    /// </summary>
+    /// <param name="connectionName">The name of the connection.</param>
+    public static async Task<string> GetCosmosDBConnectionStringAsync(string connectionName)
+    {
         var tokenProvider = new AzureServiceTokenProvider();
         var client = new KeyVaultClient(
             authenticationCallback: new KeyVaultClient.AuthenticationCallback(tokenProvider.KeyVaultTokenCallback)
